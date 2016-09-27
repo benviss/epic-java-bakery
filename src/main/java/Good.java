@@ -2,33 +2,35 @@ import org.sql2o.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Good {
+public abstract class Good {
 
   protected String name;
-  private int id;
-  // private int merchandiseId;
-  protected int stockQuantity;
+  protected int id;
   protected int stockPrice;
   protected int sellPrice;
-  private int categoryId;
-  private int transactionId;
+  protected String type;
 
-  public Good(String name, int stockPrice, int sellPrice, int transactionId) {
+  public Good(String name, int stockPrice, int sellPrice, String type) {
     this.name = name;
     this.stockPrice = stockPrice;
     this.sellPrice = sellPrice;
-    this.categoryId = 1;
+    this.type = type;
   }
 
   public String getName() {
     return this.name;
   }
 
+  public String getType() {
+    return this.type;
+  }
+
   public void setName(String newName) {
     this.name = newName;
     try(Connection con = DB.sql2o.open()) {
-      con.createQuery("UPDATE breads SET name = :name WHERE id=:id")
+      con.createQuery("UPDATE breads SET name = :name WHERE id=:id AND type=:type")
         .addParameter("name", this.name)
+        .addParameter("type", this.type)
         .addParameter("id", this.id)
         .executeUpdate();
     }
@@ -45,7 +47,8 @@ public class Good {
   public void setStockPrice(int newStockPrice) {
     this.stockPrice = newStockPrice;
     try(Connection con = DB.sql2o.open()) {
-      con.createQuery("UPDATE breads SET stockPrice = :stockPrice WHERE id=:id")
+      con.createQuery("UPDATE breads SET stockPrice = :stockPrice WHERE id=:id AND type=:type")
+        .addParameter("type", this.type)
         .addParameter("stockPrice", this.stockPrice)
         .addParameter("id", this.id)
         .executeUpdate();
@@ -59,7 +62,8 @@ public class Good {
   public void setSellPrice(int newSellPrice) {
     this.sellPrice = newSellPrice;
     try(Connection con = DB.sql2o.open()) {
-      con.createQuery("UPDATE breads SET sellPrice = :sellPrice WHERE id=:id")
+      con.createQuery("UPDATE breads SET sellPrice = :sellPrice WHERE id=:id AND type=:type")
+        .addParameter("type", this.type)
         .addParameter("sellPrice", this.sellPrice)
         .addParameter("id", this.id)
         .executeUpdate();
@@ -68,12 +72,12 @@ public class Good {
 
   public void save() {
     try(Connection con = DB.sql2o.open()) {
-      String sql = "INSERT INTO goods (name, stockPrice, sellPrice, categoryId) VALUES (:name, :stockPrice, :sellPrice, :categoryId)";
+      String sql = "INSERT INTO goods (name, stockPrice, sellPrice, type) VALUES (:name, :stockPrice, :sellPrice, :type)";
       this.id = (int) con.createQuery(sql, true)
         .addParameter("name", this.name)
         .addParameter("stockPrice", this.stockPrice)
         .addParameter("sellPrice", this.sellPrice)
-        .addParameter("categoryId", this.categoryId)
+        .addParameter("type", this.type)
         .executeUpdate()
         .getKey();
     }
@@ -94,13 +98,21 @@ public class Good {
     }
   }
 
+  public List<Integer> getTransactionIds() {
+    try(Connection con = DB.sql2o.open()) {
+      con.createQuery("SELECT transaction_id FROM transactions_goods_link WHERE good_id=:good_id")
+        .addParameter("good_id", this.id)
+        .executeAndFetch(Integer.class);
+    }
+  }
+
   @Override
   public boolean equals(Object testObj) {
     if(!(testObj instanceof Good)) {
       return false;
     } else {
       Good good = (Good) testObj;
-      return this.id == good.getId() && this.name.equals(good.getName());
+      return this.id == good.getId() && this.type.equals(good.getType());
     }
   }
 }

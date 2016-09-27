@@ -82,4 +82,21 @@ public class Transaction {
     }
   }
 
+  public void linkTransactionGoods(int _goodsId) {
+    try(Connection con = DB.sql2o.open()) {
+      con.createQuery("INSERT INTO transactions_goods_link (transaction_id, good_id) VALUES (:transaction_id, :good_id)")
+      .addParameter("transaction_id", this.id)
+      .addParameter("good_id",_goodsId)
+      .executeUpdate();
+    }
+  }
+
+  public List<Integer> getGoodsIds() {
+    try(Connection con = DB.sql2o.open()) {
+      con.createQuery("SELECT good_id FROM transactions_goods_link WHERE transaction_id=:transaction_id")
+      .addParameter("transaction_id", this.id)
+      .executeAndFetch(Integer.class);
+    }
+  }
+
 }
