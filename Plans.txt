@@ -1,20 +1,4 @@
-Merchandise
-  inventory levels
-  cost of ingredients
-  customer price of products
-
-transactions
-  customers sub class
-
-
-
-Bread
-Coffee
-Pastries
-Sandwiches
-
-
-Website layout
-  Index:
-    displays goods category links
-      displays specific goods links
+To Do:
+Implement Sign In
+Implement Customer Cart Functionality
+Implement data access for employees

@@ -1,0 +1,12 @@
+<h2><strong>Transaction Date: </strong> $transaction.getTimestamp()</h2>
+
+<h4>Transaction Summary:</h4>
+<ul>
+  #foreach($goodId in $goods)
+  <li>$Good.findById($goodId).getName()  || $Good.findById($goodId).getSalePrice()</li>
+  #end
+</ul>
+
+<h4>Total: $transaction.getSalePrice()</h4>
+
+<a href="/">Home</a>

@@ -1,0 +1,11 @@
+<form action="/cart/checkout" method="post">
+  <ul>
+    #foreach ($good in $cart)
+      <li><a href="/cart/$foreach.index">Remove</a> || $good.getName()</li>
+    #end
+  </ul>
+  <h5>Total sale: $salePrice.00</h5>
+  <button type="submit" name="button" class="btn btn-success">Continue with checkout</button>
+</form>
+
+<a href="/">Back to Main Menu</a>

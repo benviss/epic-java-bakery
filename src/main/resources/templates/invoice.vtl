@@ -1,0 +1,11 @@
+<h2>Success!</h2>
+<h4>Thank you for purchasing:</h4>
+<ul>
+  #foreach ($good in $goods)
+    <li>$good.getName()</li>
+  #end
+</ul>
+
+<h3>Total sale: $totalCost.00</h3>
+
+<a href="/">Keep Shopping</a>

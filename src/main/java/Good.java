@@ -2,7 +2,7 @@ import org.sql2o.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Good {
+public class Good {
 
   protected String name;
   protected int id;
@@ -28,7 +28,7 @@ public abstract class Good {
   public void setName(String newName) {
     this.name = newName;
     try(Connection con = DB.sql2o.open()) {
-      con.createQuery("UPDATE breads SET name = :name WHERE id=:id AND type=:type")
+      con.createQuery("UPDATE goods SET name = :name WHERE id=:id AND type=:type")
         .addParameter("name", this.name)
         .addParameter("type", this.type)
         .addParameter("id", this.id)
@@ -47,7 +47,7 @@ public abstract class Good {
   public void setStockPrice(int newStockPrice) {
     this.stockPrice = newStockPrice;
     try(Connection con = DB.sql2o.open()) {
-      con.createQuery("UPDATE breads SET stockPrice = :stockPrice WHERE id=:id AND type=:type")
+      con.createQuery("UPDATE goods SET stockPrice = :stockPrice WHERE id=:id AND type=:type")
         .addParameter("type", this.type)
         .addParameter("stockPrice", this.stockPrice)
         .addParameter("id", this.id)
@@ -62,7 +62,7 @@ public abstract class Good {
   public void setSellPrice(int newSellPrice) {
     this.sellPrice = newSellPrice;
     try(Connection con = DB.sql2o.open()) {
-      con.createQuery("UPDATE breads SET sellPrice = :sellPrice WHERE id=:id AND type=:type")
+      con.createQuery("UPDATE goods SET sellPrice = :sellPrice WHERE id=:id AND type=:type")
         .addParameter("type", this.type)
         .addParameter("sellPrice", this.sellPrice)
         .addParameter("id", this.id)
@@ -85,7 +85,15 @@ public abstract class Good {
 
   public static List<Good> all() {
     try(Connection con = DB.sql2o.open()) {
-      return con.createQuery("SELECT * FROM goods")
+    return con.createQuery("SELECT * FROM goods")
+        .executeAndFetch(Good.class);
+    }
+  }
+
+  public static List<Good> allByType(String _type) {
+    try(Connection con = DB.sql2o.open()) {
+    return con.createQuery("SELECT * FROM goods WHERE type=:type")
+        .addParameter("type", _type)
         .executeAndFetch(Good.class);
     }
   }
@@ -100,7 +108,7 @@ public abstract class Good {
 
   public List<Integer> getTransactionIds() {
     try(Connection con = DB.sql2o.open()) {
-      con.createQuery("SELECT transaction_id FROM transactions_goods_link WHERE good_id=:good_id")
+      return con.createQuery("SELECT transaction_id FROM transactions_goods_link WHERE good_id=:good_id")
         .addParameter("good_id", this.id)
         .executeAndFetch(Integer.class);
     }
@@ -114,5 +122,18 @@ public abstract class Good {
       Good good = (Good) testObj;
       return this.id == good.getId() && this.type.equals(good.getType());
     }
+  }
+
+  public int getSellVolume() {
+    try(Connection con = DB.sql2o.open()) {
+      List<Integer> allGoodIds = con.createQuery("SELECT good_id FROM transactions_goods_link WHERE good_id = :id")
+        .addParameter("id", this.id)
+        .executeAndFetch(Integer.class);
+      return allGoodIds.size();
+    }
+  }
+
+  public int getTotalSales() {
+    return this.sellPrice * this.getSellVolume();
   }
 }

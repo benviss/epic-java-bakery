@@ -7,21 +7,19 @@ public class Employee extends User {
     super(name, password);
   }
 
-  @Override
-  public static List<Employee> all() {
+  public static List<Employee> allEmployees() {
     try(Connection con = DB.sql2o.open()) {
       return con.createQuery("SELECT * FROM users WHERE usertype = :usertype")
-        .addParameter("usertype", this.userType)
+        .addParameter("usertype", "employee")
         .executeAndFetch(Employee.class);
     }
   }
 
-  @Override
   public static Employee findById(int id) {
     try(Connection con = DB.sql2o.open()) {
       return con.createQuery("SELECT * FROM users WHERE id=:id AND usertype = :usertype")
         .addParameter("id", id)
-        .addParameter("usertype", this.userType)
+        .addParameter("usertype", "employee")
         .executeAndFetchFirst(Employee.class);
     }
   }

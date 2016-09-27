@@ -2,8 +2,15 @@
 
 
 
-h3>Bakery Goods</h3>
+<h3>Bakery Goods</h3>
+<hr>
+<br>
 <form action="/goods/new" method="post">
+  <select name="type">
+    <option value="sandwich" selected="selected">Sandwich</option>
+    <option value="bread">Bread</option>
+    <option value="coffee">Coffee</option>
+  </select>
   <label for="name">Enter Name:</label>
   <input type="text" name="name" value="">
   <br>
@@ -11,14 +18,8 @@ h3>Bakery Goods</h3>
   <input type="number" name="stock" value="">
   <br>
   <label for="sell">Enter Selling Price</label>
-  <input type="number" name="selling" value="">
+  <input type="number" name="sell" value="">
   <br>
-  <label for=""></label>
-  <select name="category">
-    <!-- #foreach($category in $catgories) -->
-    <!-- <option value="$category.getId()">$category.getName()</option> -->
-    <option value="1">General Goods</option>
-    <!-- #end -->
-  </select>
+
   <button type="submit" name="button">Submit new Good</button>
 </form>

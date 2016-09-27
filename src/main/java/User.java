@@ -8,7 +8,7 @@ public class User {
   public String password;
   public String userType;
 
-  public static User loggedInUser;
+  public static int loggedInUserId = -1;
 
   public User(String name, String password) {
     this.name = name;
@@ -46,7 +46,7 @@ public class User {
     }
   }
 
-  public static List<User> all() {
+  public static List<User> allUsers() {
     try(Connection con = DB.sql2o.open()) {
       return con.createQuery("SELECT * FROM users WHERE usertype=:usertype")
         .addParameter("usertype", "customer")
@@ -63,17 +63,17 @@ public class User {
     }
   }
 
-  public static boolean userValidated(String name, String password) {
+  public static Integer userValidated(String name, String password) {
     try(Connection con = DB.sql2o.open()) {
-      User user = con.createQuery("SELECT * FROM users WHERE name = :name AND password = :password AND usertype=:usertype")
+      Integer userId = con.createQuery("SELECT id FROM users WHERE name = :name AND password = :password AND usertype=:usertype")
         .addParameter("usertype", "customer")
         .addParameter("name", name)
         .addParameter("password", password)
-        .executeAndFetchFirst(User.class);
-      if(user != null)
-        return true;
+        .executeAndFetchFirst(Integer.class);
+      if(userId != null)
+        return userId;
       else
-        return false;
+        return -1;
     }
   }
 
@@ -100,12 +100,38 @@ public class User {
     }
   }
 
-  public static User getLoggedInUser() {
-    return loggedInUser;
+  public static int getLoggedInUserId() {
+    return loggedInUserId;
   }
 
-  public static void setLoggedInUser(User user) {
-    loggedInUser = user;
+  public static void setLoggedInUserId(int userId) {
+    loggedInUserId = userId;
+  }
+
+  public List<Transaction> getTransactions() {
+    try(Connection con = DB.sql2o.open()) {
+      return con.createQuery("SELECT * FROM transactions WHERE customerId=:id")
+        .addParameter("id", this.id)
+        .executeAndFetch(Transaction.class);
+    }
+  }
+
+  // public List<Transaction> getTransactions() {
+  //   List<Integer> ids = this.getTransactionIds();
+  //   List<Transaction> transactions = new ArrayList<>();
+  //   for(Integer id : ids) {
+  //     Transaction newTransaction = Transaction.findById(id);
+  //     transactions.add(newTransaction);
+  //   }
+  //   return transactions;
+  // }
+
+  public int totalSpent() {
+    int sum = 0;
+    for (Transaction transaction :this.getTransactions()) {
+      sum += transaction.getSalePrice();
+    }
+    return sum;
   }
 
 }

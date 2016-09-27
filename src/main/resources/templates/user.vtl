@@ -1,0 +1,13 @@
+<h2>$user.getName()</h2>
+<ul>
+  <li><strong>Total Spent: </strong> $user.totalSpent().00</li>
+  <h4>Transactions: </h4>
+  <ul>
+    #foreach($transaction in $user.getTransactions())
+      <li><a href="/transaction/$transaction.getId()">$transaction.getTimestamp()</a></li>
+    #end
+  </ul>
+  <li><strong>Access Rights:</strong> $user.getType()</li>
+</ul>
+
+<a href="/">Home</a>

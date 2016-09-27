@@ -1,0 +1,12 @@
+<h2>Sales Analytics</h2>
+<ul>
+  #foreach ($good in $goods)
+  <li>$good.getName()</li>
+    <ul>
+      <li><strong>Total Units Sold:</strong> $good.getSellVolume()</li>
+      <li><strong>Gross Revenue</strong> $good.getTotalSales()</li>
+    </ul>
+  #end
+</ul>
+
+<a href="/">Home</a>

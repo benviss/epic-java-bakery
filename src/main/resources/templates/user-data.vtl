@@ -1,0 +1,6 @@
+<h2>Customers</h2>
+<ul>
+  #foreach ($user in $users)
+    <li><a href="/user/$user.getId()">$user.getName()</a>  ||  <strong>$user.totalSpent()</strong></li>
+  #end
+</ul>

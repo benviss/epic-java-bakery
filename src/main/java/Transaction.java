@@ -8,7 +8,6 @@ public class Transaction {
   private int id;
   private int salePrice;
   private int customerId;
-  private List<Integer> customerCart = new ArrayList<Integer>();
   private Timestamp dateAndTime;
 
   public Transaction(int customerId) {
@@ -33,10 +32,9 @@ public class Transaction {
 
   public void save() {
     try (Connection con = DB.sql2o.open()) {
-      this.id = (int) con.createQuery("INSERT INTO transactions (salePrice, customerId, dateAndTime) VALUES (:salePrice, :customerId, :dateAndTime)", true)
+      this.id = (int) con.createQuery("INSERT INTO transactions (salePrice, customerId, dateAndTime) VALUES (:salePrice, :customerId, now())", true)
       .addParameter("salePrice", this.salePrice)
       .addParameter("customerId", this.customerId)
-      .addParameter("dateAndTime", this.dateAndTime)
       .executeUpdate()
       .getKey();
     }
@@ -67,33 +65,23 @@ public class Transaction {
     }
   }
 
-  public List<Good> getGoods() {
-    try(Connection con = DB.sql2o.open()) {
-      return con.createQuery("SELECT * FROM goods WHERE transactionId = :id")
-        .addParameter("id", this.id)
-        .executeAndFetch(Good.class);
-    }
-  }
-
-  public void tallyCart() {
-    for(int cartItem : customerCart) {
-      Good temp = Good.findById(cartItem);
-      salePrice += temp.getSellPrice();
-    }
-  }
-
   public void linkTransactionGoods(int _goodsId) {
+    this.salePrice += Good.findById(_goodsId).getSellPrice();
     try(Connection con = DB.sql2o.open()) {
       con.createQuery("INSERT INTO transactions_goods_link (transaction_id, good_id) VALUES (:transaction_id, :good_id)")
-      .addParameter("transaction_id", this.id)
-      .addParameter("good_id",_goodsId)
-      .executeUpdate();
+        .addParameter("transaction_id", this.id)
+        .addParameter("good_id",_goodsId)
+        .executeUpdate();
+      con.createQuery("UPDATE transactions Set salePrice = :salePrice WHERE id=:id")
+        .addParameter("salePrice", this.salePrice)
+        .addParameter("id", this.id)
+        .executeUpdate();
     }
   }
 
   public List<Integer> getGoodsIds() {
     try(Connection con = DB.sql2o.open()) {
-      con.createQuery("SELECT good_id FROM transactions_goods_link WHERE transaction_id=:transaction_id")
+      return con.createQuery("SELECT good_id FROM transactions_goods_link WHERE transaction_id=:transaction_id")
       .addParameter("transaction_id", this.id)
       .executeAndFetch(Integer.class);
     }
